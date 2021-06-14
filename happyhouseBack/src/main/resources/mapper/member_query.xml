@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+
+<mapper namespace="com.mycom.myapp.dao.MemberDao">
+
+	<select id="list" resultType="com.mycom.myapp.dto.MemberDto">
+	        select * from ssafy_member
+	</select>
+
+    <insert id="registerMember" parameterType="com.mycom.myapp.dto.MemberDto">
+        insert into ssafy_member (   userid, username,   userpwd,   email, address_gu, address_dong, user_clsf, joindate) 
+                 values (  #{userId}, #{userName},#{userPwd}, #{email}, #{addressGu}, #{addressDong}, #{userClsf}, now())
+    </insert>
+	
+   <update id="updateMember"    parameterType="com.mycom.myapp.dto.MemberDto">
+        update     ssafy_member 
+           set     username    = #{userName}
+                   ,userpwd = #{userPwd}
+                ,email    = #{email}
+                ,address_gu = #{addressGu}
+                ,address_dong = #{addressDong}
+         where userid= #{userId}
+    </update>
+    
+    <delete id="deleteMember" parameterType="String">
+        delete from ssafy_member where userid = #{userId}
+    </delete>
+
+    <select id="detailMember" parameterType="String" resultType="com.mycom.myapp.dto.MemberDto">
+        select * from ssafy_member where userid = #{userId}
+    </select>
+	
+</mapper>

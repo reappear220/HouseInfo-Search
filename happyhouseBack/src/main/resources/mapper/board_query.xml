@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.mycom.myapp.dao.BoardDao">
+
+
+	<!-- reg_dt : LocalDateTime, check out BoardDto setter  -->
+	<select id="boardList" parameterType="map" resultType="com.mycom.myapp.dto.BoardDto">	
+	
+	SELECT info.no as no, info.aptName as aptName, info.buildYear as buildYear, info.dong as dong, info.jibun as jibun, info.code as code, info.lat as lat, info.lng as lng	 
+		FROM houseinfo as info
+		 ORDER BY no
+		 LIMIT #{limit} OFFSET #{offset}
+
+<!--  
+  		SELECT info.no as no, info.aptName as aptName, info.buildYear as buildYear, info.dong as dong, info.jibun as jibun, info.code as code, info.lat as lat, info.lng as lng,
+  				 deal.dealAmount as dealAmount, deal.type as dealType, deal.area as area, deal.dealYear as dealYear, deal.dealMonth as dealMonth, deal.dealDay as dealDay,
+  				 deal.floor as floor 
+		FROM housedeal as deal, houseinfo as info
+		  where info.aptName = deal.aptName
+		 ORDER BY no
+		 LIMIT #{limit} OFFSET #{offset}
+ -->
+	</select>
+	
+	<select id="boardListTotalCount" resultType="int">
+		SELECT COUNT(*) FROM housedeal
+	</select>
+	
+	<select id="boardListSearchWord" parameterType="map" resultType="com.mycom.myapp.dto.BoardDto">
+		SELECT no, aptName, buildYear, dong, jibun,code, lat, lng
+		  FROM houseinfo
+		  where aptName LIKE CONCAT('%', #{searchWord} ,'%') or dong LIKE CONCAT('%', #{searchWord} ,'%')
+		  ORDER BY no
+		  LIMIT #{limit} OFFSET #{offset}
+	</select>
+	
+	<select id="boardListSearchWordTotalCount" parameterType="string" resultType="int">
+		SELECT COUNT(*)
+		  FROM housedeal
+		 WHERE aptName LIKE CONCAT('%', #{searchWord} ,'%')
+	</select>
+	<select id="boardDetail" parameterType="com.mycom.myapp.dto.BoardParamDto" resultType="com.mycom.myapp.dto.BoardDto">
+<!--			SELECT deal.no as no, deal.aptName as aptName, deal.dealAmount as dealAmount, deal.buildYear as buildYear,
+					 deal.area as area, deal.dong as dong, deal.jibun as jibun, deal.type as dealType,deal.code as code
+		  	FROM housedeal as deal, houseinfo as info
+		  	where deal.aptName = info.aptName and deal.no = #{no} 
+		 	ORDER BY no
+-->		 	
+		 	SELECT deal.no as no, deal.aptName as aptName, deal.buildYear as buildYear, deal.dong as dong, deal.jibun as jibun, deal.code as code,
+		 	deal.dealAmount as dealAmount, deal.type as dealType, deal.area as area, deal.dealYear as dealYear, deal.dealMonth as dealMonth, deal.dealDay as dealDay,
+  				 deal.floor as floor, info.lat as lat, info.lng as lng
+			FROM housedeal as deal, houseinfo as info
+		  	where deal.aptName = info.aptName and info.no = #{no} 
+		 	ORDER BY deal.dealYear desc , deal.dealMonth desc, deal.dealDay desc ;
+		 
+	</select>
+</mapper>
+
+
+
+
+
+

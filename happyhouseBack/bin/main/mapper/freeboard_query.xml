@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.mycom.myapp.dao.FreeBoardDao">
+
+
+	<insert id="freeboardInsert" parameterType="com.mycom.myapp.dto.FreeBoardDto" useGeneratedKeys="true" keyProperty="boardId">
+		INSERT INTO BOARD ( userid, TITLE, CONTENT, REG_DT, READ_COUNT )
+		            VALUES ( #{userId}, #{title}, #{content}, now(), 0 )
+	</insert>
+	
+	<insert id="freeboardFileInsert" parameterType="com.mycom.myapp.dto.FreeBoardFileDto">
+		INSERT INTO BOARD_FILE ( BOARD_ID, FILE_NAME, FILE_SIZE, FILE_CONTENT_TYPE, FILE_URL )
+		            VALUES ( #{boardId}, #{fileName}, #{fileSize}, #{fileContentType}, #{fileUrl} )
+	</insert>
+	
+	<!-- reg_dt : LocalDateTime, check out BoardDto setter  -->
+	<select id="freeboardList" parameterType="map" resultType="com.mycom.myapp.dto.FreeBoardDto">
+		SELECT b.BOARD_ID, b.userid, sm.USERNAME,
+		  	   b.TITLE, b.CONTENT, b.REG_DT, b.READ_COUNT
+		  FROM BOARD b, ssafy_member sm
+		 WHERE b.userid = sm.userid
+		 ORDER BY b.BOARD_ID DESC
+		 LIMIT #{limit} OFFSET #{offset}
+	</select>
+	
+	<select id="freeboardListTotalCount" resultType="int">
+		SELECT COUNT(*) FROM BOARD
+	</select>
+	
+	<select id="freeboardListSearchWord" parameterType="map" resultType="com.mycom.myapp.dto.FreeBoardDto">
+		SELECT b.BOARD_ID, b.USERID, sm.USERNAME,
+		  	   b.TITLE, b.CONTENT, b.REG_DT, b.READ_COUNT
+		  FROM BOARD b, ssafy_member sm
+		  WHERE b.USERID = sm.USERID
+		    AND b.TITLE LIKE CONCAT('%', #{searchWord} ,'%')
+		  ORDER BY b.BOARD_ID DESC
+		  LIMIT #{limit} OFFSET #{offset}
+	</select>
+	
+	<select id="freeboardListSearchWordTotalCount" parameterType="string" resultType="int">
+		SELECT COUNT(*)
+		  FROM BOARD
+		 WHERE TITLE LIKE CONCAT('%', #{searchWord} ,'%')
+	</select>
+	
+	<update id="freeboardUpdate" parameterType="com.mycom.myapp.dto.FreeBoardDto">
+		UPDATE BOARD
+		   SET TITLE = #{title},
+		   CONTENT   = #{content}
+		 WHERE BOARD_ID = #{boardId}
+	</update>
+	
+	<delete id="freeboardDelete" parameterType="int">
+		DELETE FROM BOARD WHERE BOARD_ID = #{boardId}
+	</delete>
+	
+	<delete id="freeboardFileDelete" parameterType="int">
+		DELETE FROM BOARD_FILE WHERE BOARD_ID = #{boardId}
+	</delete>
+	
+	<select id="freeboardFileUrlDeleteList" parameterType="int" resultType="string">
+		SELECT FILE_URL FROM BOARD_FILE WHERE BOARD_ID = #{boardId}
+	</select>
+
+	<select id="freeboardDetail" parameterType="int" resultType="com.mycom.myapp.dto.FreeBoardDto">
+		SELECT b.BOARD_ID, b.USERID, SM.USERNAME,
+			   b.TITLE, b.CONTENT, b.REG_DT, b.READ_COUNT
+		  FROM BOARD b, SSAFY_MEMBER SM
+		 WHERE b.BOARD_ID = #{boardId}
+		   AND b.USERID = SM.USERID
+	</select>
+	
+	<select id="freeboardDetailFileList" parameterType="int" resultType="com.mycom.myapp.dto.FreeBoardFileDto">
+		SELECT BOARD_ID, FILE_ID, FILE_NAME, FILE_SIZE, FILE_CONTENT_TYPE, 
+		       FILE_URL, REG_DT
+		  FROM BOARD_FILE
+		 WHERE BOARD_ID = #{boardId}
+	</select>
+	
+	<!-- Dao use Dto -->
+	<select id="freeboardUserReadCount" parameterType="map" resultType="int">
+		SELECT count(*) FROM board_user_read WHERE board_id = #{boardId} and userid = #{userId}
+	</select>
+	
+	<!-- Dao use @param -->
+	<insert id="freeboardUserReadInsert" parameterType="map">
+		INSERT INTO board_user_read ( board_id, userid )
+		            VALUES ( #{boardId}, #{userId} )
+	</insert>
+	
+	<update id="freeboardReadCountUpdate" parameterType="int">
+		UPDATE board set READ_COUNT = READ_COUNT + 1
+		 WHERE BOARD_ID = #{boardId}
+	</update>
+	
+	<update id="freeboardReadCountDelete" parameterType="int">
+		DELETE FROM board_user_read WHERE BOARD_ID = #{boardId}
+	</update>
+
+</mapper>
